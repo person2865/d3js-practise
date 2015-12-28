@@ -1,0 +1,116 @@
+D3JS Path generators:
+====================
+
+D3.js includes a set of Path Data Generators helper classes for generating SVG Path instructions.
+
+        d3.svg.line()
+
+The path generator is both an object and a function.
+Which means you can call the generator like any function and the generators will have additional methods to change its behavior.
+
+        var lineFunction = d3.svg.line()
+                         .x(function(d) { return d.x; })
+                         .y(function(d) { return d.y; })
+                         .interpolate("linear");
+
+        var lineGraph = svgContainer.append("path")
+                            .attr("d", lineFunction(lineData))
+
+This generates the 'd' attribute of the svg's 'path' element.
+
+        <path d="M1,5L20,20L40,10L60,40L80,5L100,60" stroke="blue" stroke-width="2" fill="none"></path>
+
+The generators include:
+
+d3.svg.line - create a new line generator
+d3.svg.line.radial - create a new radial line generator
+d3.svg.area - create a new area generator
+d3.svg.area.radial - create a new radial area generator
+d3.svg.arc - create a new arc generator
+d3.svg.symbol - create a new symbol generator
+d3.svg.chord - create a new chord generator
+d3.svg.diagonal - create a new diagonal generator
+d3.svg.diagonal.radial - create a new radial diagonal generator
+
+
+
+D3.js Scales:
+============
+
+Instead of resizing our SVG Coordinate space to our data, we can resize our data to fit into our pre-defined SVG Coordinate Space.
+
+D3.js provides functions to perform data transformations.
+
+These functions map an input domain to an output range.
+
+Said another way, these functions take an interval and transform it into a new interval.
+
+Because the D3.js Scales are functions, not only can we map one input domain to an output range, the functions can convert a number in the domain to an output in the range.
+
+Example: Inital Interval (Domain): 0 to 10000.
+         New Interval (Range): 0 to 100.
+
+    To do the transformation, we can follow this algorithm:
+
+    1. Figure out what the largest number in the original interval is ( -> 10000 )
+    2. Figure out what the smallest number in the original interval is ( -> 0)
+    3. Figure out the difference between the two original interval numbers ( -> 10000 - 0 = 10000 )
+    4. Figure out what the largest number in the new interval is ( -> 100 )
+    5. Figure out what the smallest number in the new interval is ( -> 0 )
+    6. Figure out the difference between the two new interval numbers ( -> 100 - 0 = 100 )
+    7. Divide the original interval difference between the new interval difference ( -> 10000 / 100 = 100 )
+    8. This tells us that 100 units of the original interval are equal to 1 unit of the new interval
+    9. This is called a linear scaling (y = mx + b , where b=0 and m = 1/100) 
+    In our example, if x = 10000, we divide it by 100 to get y = 100
+
+D3.js Scale Linear:
+------------------
+
+        var linearScale = d3.scale.linear()
+                           .domain([0,10000])
+                           .range([0,100]);
+        linearScale(1);
+        //0.01
+        
+        linearScale(10);
+        // 0.1
+        
+        linearScale(100);
+        // 1
+        
+        linearScale(1000);
+        // 10
+        
+        linearScale(10000);
+        // 100
+
+Usage:
+    var initialScaleData = [0, 1000, 3000, 2000, 5000, 4000, 7000, 6000, 9000, 8000, 10000];
+    
+    var newScaledData = [];
+    var minDataPoint = d3.min(initialScaleData);
+    var maxDataPoint = d3.max(initialScaleData);
+    
+    var linearScale = d3.scale.linear()
+                               .domain([minDataPoint,maxDataPoint])
+                               .range([0,100]);
+    
+    for (var i = 0; i < initialScaleData.length; i++) {
+      newScaledData[i] = linearScale(initialScaleData[i]);
+    }
+    
+    newScaledData;
+    //[0, 10, 30, 20, 50, 40, 70, 60, 90, 80, 100]
+
+
+The Quantitative scales have a continuous domain such as dates, times, real numbers, etc...
+
+The Ordinal scales are for discrete domains - like names, categories, colors, etc...
+
+The D3.js scales are:
+
+    Identity: a special kind of linear scale, 1:1, good for pixel values. input == output
+    Linear: transforms one value in the domain interval into a value in the range interval
+    Power and Logarithmic scales: sqrt, pow, log – used for exponentially increasing values
+    Quantize and Quantile scales: for discrete sets of unique possible values for inputs or outputs
+    Ordinal: for non quantitative scales, like names, categories, etc.
